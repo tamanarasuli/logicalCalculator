@@ -1,7 +1,7 @@
 /**
  * HW5. Node.js program for a logical calculator.
  */
-let arr = []; 
+ 
 // Set up some global constants for the program
 const express = require('express');
 const app = express();
@@ -47,30 +47,23 @@ db.run(
  
 function readRenderAndRespond(res) {
     let sql = `SELECT  num1,num2, op, answer FROM answers`
-
-  
-db.all(sql, [], (err, rows) => {
-  if (err) {
-    throw err;
-  }
-  rows.forEach((row) => {
-    console.log(rows);
-    console.log(`${row.op} ${row.num1} ${row.num2} ${row.answer}` );
-    // rows[index.op]
-    arr.push(`${row.op}${row.num1}${row.num2} Answer=${row.answer}`); 
-    
-    //  res.render('index', rows); 
-  });
-  
-  let args = {
+    db.all(sql, [], (err, rows) => {
+      if (err) {
+        throw err;
+      }
+      rows.reverse(); 
+      console.log(rows);
+      let arr = []; 
+      rows.forEach((row) => {
+        arr.push(`${row.op}${row.num1}${row.num2} Answer=${row.answer}`); 
+      });
+      
+      let args = {
         "title" : "Logical Calculator",
          "row" : arr, 
-    };
+        };
     res.render('index', args);
-    //  res.render('index', (err, rows)); 
-  
-    });
-
+     });
 }
    
 
@@ -143,24 +136,14 @@ function calculate(req, res) {
  * Insert the calculation into the database, then respond to the user
  */
 function insertCalculationAndRespond(op, num1, num2, answer, res) {
-    //use the insert command from sql
-    // let holder = [op, num1, num2, answer]; 
-    // let placeholders = holder.map(() => '(?)').join(',');
     let sql = 'INSERT INTO Answers(op, num1, num2, answer) VALUES(\'' + op +'\',\'' +  num1 + '\',\'' + num2 + '\',\'' +  answer + '\')';
-
-// output the INSERT statement
         console.log(sql);
-
     db.run(sql, function(err) {
-    if (err) {
-        return console.error(err.message);
+        if (err) {
+            return console.error(err.message);
         }
-    // readRenderAndRespond(); 
-        
     });
     readRenderAndRespond(res); 
-    // Insert answer into database, then call readRenderAndRespond
-    // when the insertion is successful
 }
 
 
